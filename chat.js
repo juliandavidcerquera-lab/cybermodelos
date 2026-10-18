@@ -1,9 +1,7 @@
 /**
  * CyberModelos - Vercel Serverless Function: POST /api/chat
  * Recibe { "pregunta": "..." } y responde { "respuesta": "..." }.
- * El contexto (modelos de ciberseguridad) vive en el servidor: lib/data.js.
- * Variables de entorno (Vercel > Settings > Environment Variables):
- *   ANTHROPIC_API_KEY (obligatoria) · ANTHROPIC_MODEL (opcional)
+ * MODO SIMULADO: No consume créditos de Anthropic.
  */
 "use strict";
 
@@ -73,6 +71,8 @@ module.exports = async function handler(req, res) {
     // Se eliminan "<" y ">" para que nadie pueda cerrar etiquetas desde dentro de la pregunta.
     const safeQuestion = pregunta.replace(/\s+/g, " ").trim().replace(/[<>]/g, "");
 
+    // === INICIO DE RESPUESTA SIMULADA (No cobra saldo) ===
+    /* Comentamos la llamada real a Anthropic para no gastar créditos
     const msg = await getClient().messages.create({
       model: MODEL,
       max_tokens: 700,
@@ -90,6 +90,11 @@ module.exports = async function handler(req, res) {
       .join("\n")
       .trim();
     if (!respuesta) return fail(res, 502, "Error de conexión con el asistente. Inténtalo de nuevo.");
+    */
+
+    // Generamos una respuesta estática devolviendo la misma pregunta:
+    const respuesta = `¡Conexión exitosa! Soy el asistente simulado de CyberModelos. He recibido tu pregunta: "${safeQuestion}". Tu despliegue en Vercel funciona perfectamente.`;
+    // === FIN DE RESPUESTA SIMULADA ===
 
     return res.status(200).json({ respuesta });
   } catch (err) {
